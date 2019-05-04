@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.seprokof</groupId>
+    <artifactId>car-showroom</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <groupId>com.seprokof</groupId>
+  <artifactId>car-showroom-server</artifactId>
+  <packaging>jar</packaging>
+
+  <properties>
+    <css.base.package>com.seprokof.carshowroom.server</css.base.package>
+    <openapi-generator-maven-plugin.version>3.3.4</openapi-generator-maven-plugin.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
+        <version>${openapi-generator-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <skipIfSpecIsUnchanged>true</skipIfSpecIsUnchanged>
+              <inputSpec>${project.basedir}/src/main/resources/swagger/car-showroom.yaml</inputSpec>
+              <generatorName>spring</generatorName>
+              <output>${project.basedir}</output>
+              <configOptions>
+                <modelPackage>${css.base.package}</modelPackage>
+                <apiPackage>${css.base.package}</apiPackage>
+                <invokerPackage>${css.base.package}</invokerPackage>
+                <sourceFolder>src/main/generated</sourceFolder>
+                <serializableModel>true</serializableModel>
+                <dateLibrary>java8</dateLibrary>
+                <java8>true</java8>
+                <basePackage>${base.package}</basePackage>
+                <delegatePattern>true</delegatePattern>
+              </configOptions>
+              <ignoreFileOverride>${project.basedir}/.openapi-generator-ignore</ignoreFileOverride>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
