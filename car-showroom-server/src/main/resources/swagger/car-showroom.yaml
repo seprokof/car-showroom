@@ -1,0 +1,210 @@
+openapi: '3.0.0'
+info:
+  title: Car showroom
+  description: Management API for ordering cars.
+  contact:
+    name: Sergey Prokofiev
+    email: seprokof@gmail.com
+  version: 1.0.0-SNAPSHOT
+paths:
+  '/order':
+    post:
+      description: Creates an order to buy a car.
+      operationId: createOrder
+      requestBody:
+        description: Order data such as client or reference using phone number and particular car.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+        required: true
+      responses:
+        '201':
+          description: Order created
+          headers:
+            Location:
+              description: Defines location of created order.
+              schema:
+                type: string
+                example: '/order/{orderId}'
+          links:
+            purgeTask:
+              operationId: getOrder
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    get:
+      description: Retrieves information about all orders.
+      operationId: getAllOrders
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  '/order/{orderId}':
+    get:
+      description: Retrieves information about particular order.
+      operationId: getOrder
+      parameters:
+        - $ref: '#/components/parameters/orderId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      description: Updates an order.
+      operationId: updateOrder
+      parameters:
+        - $ref: '#/components/parameters/orderId'
+      requestBody:
+        description: Order data such as client or reference using phone number and particular car.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+        required: true
+      responses:
+        '200':
+          description: Order updated successfully
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      description: Deletes an order.
+      operationId: deleteOrder
+      parameters:
+        - $ref: '#/components/parameters/orderId'
+      responses:
+        '200':
+          description: Order deleted successfully
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  schemas:
+    Option:
+      type: object
+      required:
+        - code
+        - description
+      properties:
+        code:
+          type: string
+          example: '000523'
+        description:
+          type: string
+          example: 'Aerodynamic body kit'
+      example:
+        code: '000523'
+        description: 'Aerodynamic body kit'
+    Car:
+      type: object
+      required:
+        - brand
+        - model
+      properties:
+        brand:
+          type: string
+          example: 'Audi'
+        model:
+          type: string
+          example: 'RS5'
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/Option'
+      example:
+        brand: 'Audi'
+        model: 'RS5'
+    Client:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - phone
+      properties:
+        firstName:
+          type: string
+          example: 'Sergey'
+        lastName:
+          type: string
+          example: 'Prokofiev'
+        phone:
+          type: string
+          example: '89092777920'
+        vip:
+          type: boolean
+          example: true
+      example:
+        firstName: 'Sergey'
+        lastName: 'Prokofiev'
+        phone: '89092777920'
+        vip: true
+    Order:
+      type: object
+      required:
+        - clientPhone
+        - car
+      properties:
+        clientPhone:
+          type: string
+          example: '89092777920'
+        client:
+          $ref: '#/components/schemas/Client'
+        car:
+          $ref: '#/components/schemas/Car'
+    ErrorMessage:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - path
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: '2019-02-19T08:48:23.00Z'
+        status:
+          type: integer
+          format: int32
+          example: 403
+        error:
+          type: string
+          example: 'org.springframework.security.access.AccessDeniedException: Access denied'
+        message:
+          type: string
+          example: You don't have permission to access order on server
+        path:
+          type: string
+          example: '/order/019'
+  responses:
+    InternalServerError:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+          example:
+            timestamp: '2019-01-30T12:35:49.619Z'
+            status: 500
+            error: Developer message or even stacktrace
+            message: Datastore error
+            path: '/path/to/endpoint/where/error/occurred'
+  parameters:
+    orderId:
+      name: orderId
+      in: path
+      description: Unique identifier of order.
+      required: true
+      schema:
+        type: string

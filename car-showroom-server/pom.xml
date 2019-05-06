@@ -7,18 +7,37 @@
     <artifactId>car-showroom</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
-  <groupId>com.seprokof</groupId>
   <artifactId>car-showroom-server</artifactId>
   <packaging>jar</packaging>
 
   <properties>
-    <css.base.package>com.seprokof.carshowroom.server</css.base.package>
+    <springfox-version>2.9.2</springfox-version>
+    <base.package>com.seprokof.cshr.server</base.package>
     <openapi-generator-maven-plugin.version>3.3.4</openapi-generator-maven-plugin.version>
   </properties>
 
   <dependencies>
     <dependency>
-
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger2</artifactId>
+      <version>${springfox-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger-ui</artifactId>
+      <version>${springfox-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
     </dependency>
   </dependencies>
 
@@ -39,9 +58,9 @@
               <generatorName>spring</generatorName>
               <output>${project.basedir}</output>
               <configOptions>
-                <modelPackage>${css.base.package}</modelPackage>
-                <apiPackage>${css.base.package}</apiPackage>
-                <invokerPackage>${css.base.package}</invokerPackage>
+                <modelPackage>${base.package}</modelPackage>
+                <apiPackage>${base.package}</apiPackage>
+                <invokerPackage>${base.package}</invokerPackage>
                 <sourceFolder>src/main/generated</sourceFolder>
                 <serializableModel>true</serializableModel>
                 <dateLibrary>java8</dateLibrary>
@@ -53,6 +72,13 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>com.seprokof.cshr.server.OpenAPI2SpringBoot</mainClass>
+        </configuration>
       </plugin>
     </plugins>
   </build>
