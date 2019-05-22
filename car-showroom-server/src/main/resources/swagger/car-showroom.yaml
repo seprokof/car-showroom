@@ -207,4 +207,5 @@ components:
       description: Unique identifier of order.
       required: true
       schema:
-        type: string
+        type: integer
+        format: int64

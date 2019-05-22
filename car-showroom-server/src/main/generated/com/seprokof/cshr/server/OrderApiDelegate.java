@@ -17,7 +17,7 @@ import java.util.Optional;
  * A delegate to be called by the {@link OrderApiController}}.
  * Implement this interface with a {@link org.springframework.stereotype.Service} annotated class.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2019-05-06T15:17:55.853298200+03:00[Europe/Moscow]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2019-05-22T12:59:53.812+03:00[Europe/Moscow]")
 
 public interface OrderApiDelegate {
 
@@ -36,7 +36,7 @@ public interface OrderApiDelegate {
     /**
      * @see OrderApi#deleteOrder
      */
-    default ResponseEntity<Void> deleteOrder(String orderId) {
+    default ResponseEntity<Void> deleteOrder(Long orderId) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 
     }
@@ -60,7 +60,7 @@ public interface OrderApiDelegate {
     /**
      * @see OrderApi#getOrder
      */
-    default ResponseEntity<Order> getOrder(String orderId) {
+    default ResponseEntity<Order> getOrder(Long orderId) {
         getRequest().ifPresent(request -> {
             for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
@@ -76,7 +76,7 @@ public interface OrderApiDelegate {
     /**
      * @see OrderApi#updateOrder
      */
-    default ResponseEntity<Void> updateOrder(String orderId,
+    default ResponseEntity<Void> updateOrder(Long orderId,
         Order order) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 

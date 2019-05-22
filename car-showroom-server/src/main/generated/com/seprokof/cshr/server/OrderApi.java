@@ -23,7 +23,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2019-05-06T15:17:55.853298200+03:00[Europe/Moscow]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2019-05-22T12:59:53.812+03:00[Europe/Moscow]")
 
 @Validated
 @Api(value = "order", description = "the order API")
@@ -53,7 +53,7 @@ public interface OrderApi {
     @RequestMapping(value = "/order/{orderId}",
         produces = { "application/json" }, 
         method = RequestMethod.DELETE)
-    default ResponseEntity<Void> deleteOrder(@ApiParam(value = "Unique identifier of order.",required=true) @PathVariable("orderId") String orderId) {
+    default ResponseEntity<Void> deleteOrder(@ApiParam(value = "Unique identifier of order.",required=true) @PathVariable("orderId") Long orderId) {
         return getDelegate().deleteOrder(orderId);
     }
 
@@ -77,7 +77,7 @@ public interface OrderApi {
     @RequestMapping(value = "/order/{orderId}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    default ResponseEntity<Order> getOrder(@ApiParam(value = "Unique identifier of order.",required=true) @PathVariable("orderId") String orderId) {
+    default ResponseEntity<Order> getOrder(@ApiParam(value = "Unique identifier of order.",required=true) @PathVariable("orderId") Long orderId) {
         return getDelegate().getOrder(orderId);
     }
 
@@ -90,7 +90,7 @@ public interface OrderApi {
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.PUT)
-    default ResponseEntity<Void> updateOrder(@ApiParam(value = "Unique identifier of order.",required=true) @PathVariable("orderId") String orderId,@ApiParam(value = "Order data such as client or reference using phone number and particular car." ,required=true )  @Valid @RequestBody Order order) {
+    default ResponseEntity<Void> updateOrder(@ApiParam(value = "Unique identifier of order.",required=true) @PathVariable("orderId") Long orderId,@ApiParam(value = "Order data such as client or reference using phone number and particular car." ,required=true )  @Valid @RequestBody Order order) {
         return getDelegate().updateOrder(orderId, order);
     }
 
