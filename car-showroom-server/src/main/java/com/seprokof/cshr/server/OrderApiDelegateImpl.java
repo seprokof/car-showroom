@@ -1,9 +1,17 @@
 package com.seprokof.cshr.server;
 
+import static com.seprokof.cshr.server.PojoConverter.fromCarDto;
+import static com.seprokof.cshr.server.PojoConverter.fromOrderDto;
+import static com.seprokof.cshr.server.PojoConverter.toCarDto;
+import static com.seprokof.cshr.server.PojoConverter.toClientDto;
+import static com.seprokof.cshr.server.PojoConverter.toOptionDto;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
@@ -45,18 +53,13 @@ public class OrderApiDelegateImpl implements OrderApiDelegate {
     public ResponseEntity<Void> createOrder(Order order) {
         OrderDto orderToSave = new OrderDto();
 
-        List<OptionDto> options = Optional
-                .ofNullable(order.getCar().getOptions()).orElse(new ArrayList<>()).stream().map(opt -> optionRepository
-                        .findByCode(opt.getCode()).orElseGet(() -> optionRepository.save(toModelOption(opt))))
-                .collect(Collectors.toList());
+        Set<OptionDto> options = findOrSaveOptions(order.getCar().getOptions());
 
-        CarDto car = carRepository
-                .findByBrandAndModelAndOptions(order.getCar().getBrand(), order.getCar().getModel(), options)
-                .orElseGet(() -> carRepository.save(toModelCar(order.getCar(), options)));
+        CarDto car = findOrSaveCar(order.getCar(), options);
         orderToSave.setCar(car);
 
         ClientDto client = clientRepository.findByPhoneNumber(order.getClient().getPhone())
-                .orElseGet(() -> clientRepository.save(toModelClient(order.getClient())));
+                .orElseGet(() -> clientRepository.save(toClientDto(order.getClient())));
         orderToSave.setClient(client);
 
         orderToSave.setStatus(Status.RECIEVED);
@@ -65,28 +68,70 @@ public class OrderApiDelegateImpl implements OrderApiDelegate {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private static OptionDto toModelOption(Option option) {
-        OptionDto result = new OptionDto();
-        result.setCode(option.getCode());
-        result.setDescription(option.getDescription());
-        return result;
+    private Set<OptionDto> findOrSaveOptions(List<Option> options) {
+        return Optional
+                .ofNullable(options).orElse(new ArrayList<>()).stream().map(opt -> optionRepository
+                        .findByCode(opt.getCode()).orElseGet(() -> optionRepository.save(toOptionDto(opt))))
+                .collect(toSet());
     }
 
-    private static CarDto toModelCar(Car car, List<OptionDto> options) {
-        CarDto result = new CarDto();
-        result.setBrand(car.getBrand());
-        result.setModel(car.getModel());
-        result.setOptions(options);
-        return result;
+    private CarDto findOrSaveCar(Car car, Set<OptionDto> options) {
+        return carRepository.findByBrandAndModel(car.getBrand(), car.getModel()).stream()
+                .filter(c -> c.getOptions().equals(options)).findAny()
+                .orElseGet(() -> carRepository.save(toCarDto(car, options)));
     }
 
-    private static ClientDto toModelClient(Client client) {
-        ClientDto result = new ClientDto();
-        result.setFirstName(client.getFirstName());
-        result.setLastName(client.getLastName());
-        result.setPhoneNumber(client.getPhone());
-        result.setVip(client.getVip());
-        return result;
+    @Override
+    public ResponseEntity<Void> updateOrder(Long orderId, Order updatedOrder) {
+        Optional<OrderDto> optOrder = orderRepository.findById(orderId);
+        if (!optOrder.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        boolean isUpdated = false;
+        OrderDto order = optOrder.get();
+
+        /*
+         * The only update allowed from client perspective is that another existing client assigned for particular
+         * order. Updates of client information such as first, last names should be done using another API.
+         * 
+         * Thus, if phone number of currently assigned client matches phone number in updated order we considering that
+         * client left unchanged.
+         * 
+         */
+        if (!order.getClient().getPhoneNumber().equals(updatedOrder.getClientPhone())) {
+            Optional<ClientDto> optClient = clientRepository.findByPhoneNumber(updatedOrder.getClientPhone());
+            if (!optClient.isPresent()) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            order.setClient(optClient.get());
+            isUpdated = true;
+        } else {
+            LOGGER.trace("No changes in client information");
+        }
+
+        /*
+         * Car could be updated in a various ways - all fields except id could be changed. If inexistent option found it
+         * will be saved in repository. Generally it is security breach, but this is only sample application.
+         * 
+         */
+        Car carFromReq = updatedOrder.getCar();
+        if (fromCarDto(order.getCar()).equals(carFromReq)) {
+            LOGGER.trace("No changes in car information");
+        } else {
+            Set<OptionDto> options = findOrSaveOptions(carFromReq.getOptions());
+            CarDto car = findOrSaveCar(carFromReq, options);
+            order.setCar(car);
+            isUpdated = true;
+        }
+
+        if (isUpdated) {
+            orderRepository.save(order);
+            LOGGER.debug("{} updated", order);
+        } else {
+            LOGGER.debug("No changes in order '{}' information were done", orderId);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
@@ -101,48 +146,14 @@ public class OrderApiDelegateImpl implements OrderApiDelegate {
         if (!optOrder.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        Order order = fromModelOrder(optOrder.get());
+        Order order = fromOrderDto(optOrder.get());
         return new ResponseEntity<Order>(order, HttpStatus.OK);
-    }
-
-    private static Option fromModelOption(OptionDto option) {
-        Option result = new Option();
-        result.setCode(option.getCode());
-        result.setDescription(option.getDescription());
-        return result;
-    }
-
-    private static Car fromModelCar(CarDto car) {
-        Car result = new Car();
-        result.setBrand(car.getBrand());
-        result.setModel(car.getModel());
-        result.setOptions(
-                car.getOptions().stream().map(OrderApiDelegateImpl::fromModelOption).collect(Collectors.toList()));
-        return result;
-    }
-
-    private static Client fromModelClient(ClientDto client) {
-        Client result = new Client();
-        result.setFirstName(client.getFirstName());
-        result.setLastName(client.getLastName());
-        result.setPhone(client.getPhoneNumber());
-        result.setVip(client.getVip());
-        return result;
-    }
-
-    private static Order fromModelOrder(OrderDto order) {
-        Order result = new Order();
-        result.car(fromModelCar(order.getCar()));
-        Client client = fromModelClient(order.getClient());
-        result.setClient(client);
-        result.setClientPhone(client.getPhone());
-        return result;
     }
 
     @Override
     public ResponseEntity<List<Order>> getAllOrders() {
         List<Order> orders = StreamSupport.stream(orderRepository.findAll().spliterator(), false)
-                .map(OrderApiDelegateImpl::fromModelOrder).collect(Collectors.toList());
+                .map(PojoConverter::fromOrderDto).collect(toList());
         return new ResponseEntity<List<Order>>(orders, HttpStatus.OK);
     }
 
