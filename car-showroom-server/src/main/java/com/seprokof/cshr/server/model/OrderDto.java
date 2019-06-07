@@ -11,15 +11,15 @@ import lombok.Data;
 @Entity
 @Table(name = "Orders")
 @Data
-public class Order {
+public class OrderDto {
 
     @Id
     @GeneratedValue
     private Long id;
     @ManyToOne
-    private Car car;
+    private CarDto car;
     @ManyToOne
-    private Client client;
+    private ClientDto client;
     private Status status;
 
     public enum Status {

@@ -1,24 +1,21 @@
 package com.seprokof.cshr.server.model;
 
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 
 import lombok.Data;
 
 @Entity
 @Data
-public class Car {
+public class ClientDto {
 
     @Id
     @GeneratedValue
     private Long id;
-    private String brand;
-    private String model;
-    @ManyToMany
-    private List<Option> options;
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
+    private Boolean vip;
 
 }

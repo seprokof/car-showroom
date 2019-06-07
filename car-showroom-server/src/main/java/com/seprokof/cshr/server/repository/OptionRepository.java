@@ -4,8 +4,23 @@ import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface OptionRepository extends CrudRepository<com.seprokof.cshr.server.model.Option, Long> {
+import com.seprokof.cshr.server.model.OptionDto;
 
-    Optional<com.seprokof.cshr.server.model.Option> findByCode(String code);
+/**
+ * Manages {@link OptionDto}.
+ * 
+ * @author seprokof
+ *
+ */
+public interface OptionRepository extends CrudRepository<OptionDto, Long> {
+
+    /**
+     * Retrieves car option by it's code.
+     * 
+     * @param code
+     *            the code of option
+     * @return {@link Optional} which contains car option with given code.
+     */
+    Optional<OptionDto> findByCode(String code);
 
 }

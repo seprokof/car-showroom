@@ -4,8 +4,23 @@ import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface ClientRepository extends CrudRepository<com.seprokof.cshr.server.model.Client, Long> {
+import com.seprokof.cshr.server.model.ClientDto;
 
-    Optional<com.seprokof.cshr.server.model.Client> findByPhoneNumber(String phoneNumber);
+/**
+ * Manages {@link ClientDto}.
+ * 
+ * @author seprokof
+ *
+ */
+public interface ClientRepository extends CrudRepository<ClientDto, Long> {
+
+    /**
+     * Retrieves client by phone number.
+     * 
+     * @param phoneNumber
+     *            the phone number of the client
+     * @return {@link Optional} which contains client owning given phone number
+     */
+    Optional<ClientDto> findByPhoneNumber(String phoneNumber);
 
 }

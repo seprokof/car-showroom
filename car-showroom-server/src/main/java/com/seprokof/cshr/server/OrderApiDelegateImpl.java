@@ -13,7 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.seprokof.cshr.server.model.Order.Status;
+import com.seprokof.cshr.server.model.CarDto;
+import com.seprokof.cshr.server.model.ClientDto;
+import com.seprokof.cshr.server.model.OptionDto;
+import com.seprokof.cshr.server.model.OrderDto;
+import com.seprokof.cshr.server.model.OrderDto.Status;
 import com.seprokof.cshr.server.repository.CarRepository;
 import com.seprokof.cshr.server.repository.ClientRepository;
 import com.seprokof.cshr.server.repository.OptionRepository;
@@ -39,19 +43,19 @@ public class OrderApiDelegateImpl implements OrderApiDelegate {
 
     @Override
     public ResponseEntity<Void> createOrder(Order order) {
-        com.seprokof.cshr.server.model.Order orderToSave = new com.seprokof.cshr.server.model.Order();
+        OrderDto orderToSave = new OrderDto();
 
-        List<com.seprokof.cshr.server.model.Option> options = Optional
+        List<OptionDto> options = Optional
                 .ofNullable(order.getCar().getOptions()).orElse(new ArrayList<>()).stream().map(opt -> optionRepository
                         .findByCode(opt.getCode()).orElseGet(() -> optionRepository.save(toModelOption(opt))))
                 .collect(Collectors.toList());
 
-        com.seprokof.cshr.server.model.Car car = carRepository
+        CarDto car = carRepository
                 .findByBrandAndModelAndOptions(order.getCar().getBrand(), order.getCar().getModel(), options)
                 .orElseGet(() -> carRepository.save(toModelCar(order.getCar(), options)));
         orderToSave.setCar(car);
 
-        com.seprokof.cshr.server.model.Client client = clientRepository.findByPhoneNumber(order.getClient().getPhone())
+        ClientDto client = clientRepository.findByPhoneNumber(order.getClient().getPhone())
                 .orElseGet(() -> clientRepository.save(toModelClient(order.getClient())));
         orderToSave.setClient(client);
 
@@ -61,24 +65,23 @@ public class OrderApiDelegateImpl implements OrderApiDelegate {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private static com.seprokof.cshr.server.model.Option toModelOption(Option option) {
-        com.seprokof.cshr.server.model.Option result = new com.seprokof.cshr.server.model.Option();
+    private static OptionDto toModelOption(Option option) {
+        OptionDto result = new OptionDto();
         result.setCode(option.getCode());
         result.setDescription(option.getDescription());
         return result;
     }
 
-    private static com.seprokof.cshr.server.model.Car toModelCar(Car car,
-            List<com.seprokof.cshr.server.model.Option> options) {
-        com.seprokof.cshr.server.model.Car result = new com.seprokof.cshr.server.model.Car();
+    private static CarDto toModelCar(Car car, List<OptionDto> options) {
+        CarDto result = new CarDto();
         result.setBrand(car.getBrand());
         result.setModel(car.getModel());
         result.setOptions(options);
         return result;
     }
 
-    private static com.seprokof.cshr.server.model.Client toModelClient(Client client) {
-        com.seprokof.cshr.server.model.Client result = new com.seprokof.cshr.server.model.Client();
+    private static ClientDto toModelClient(Client client) {
+        ClientDto result = new ClientDto();
         result.setFirstName(client.getFirstName());
         result.setLastName(client.getLastName());
         result.setPhoneNumber(client.getPhone());
@@ -94,7 +97,7 @@ public class OrderApiDelegateImpl implements OrderApiDelegate {
 
     @Override
     public ResponseEntity<Order> getOrder(Long orderId) {
-        Optional<com.seprokof.cshr.server.model.Order> optOrder = orderRepository.findById(orderId);
+        Optional<OrderDto> optOrder = orderRepository.findById(orderId);
         if (!optOrder.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -102,14 +105,14 @@ public class OrderApiDelegateImpl implements OrderApiDelegate {
         return new ResponseEntity<Order>(order, HttpStatus.OK);
     }
 
-    private static Option fromModelOption(com.seprokof.cshr.server.model.Option option) {
+    private static Option fromModelOption(OptionDto option) {
         Option result = new Option();
         result.setCode(option.getCode());
         result.setDescription(option.getDescription());
         return result;
     }
 
-    private static Car fromModelCar(com.seprokof.cshr.server.model.Car car) {
+    private static Car fromModelCar(CarDto car) {
         Car result = new Car();
         result.setBrand(car.getBrand());
         result.setModel(car.getModel());
@@ -118,7 +121,7 @@ public class OrderApiDelegateImpl implements OrderApiDelegate {
         return result;
     }
 
-    private static Client fromModelClient(com.seprokof.cshr.server.model.Client client) {
+    private static Client fromModelClient(ClientDto client) {
         Client result = new Client();
         result.setFirstName(client.getFirstName());
         result.setLastName(client.getLastName());
@@ -127,7 +130,7 @@ public class OrderApiDelegateImpl implements OrderApiDelegate {
         return result;
     }
 
-    private static Order fromModelOrder(com.seprokof.cshr.server.model.Order order) {
+    private static Order fromModelOrder(OrderDto order) {
         Order result = new Order();
         result.car(fromModelCar(order.getCar()));
         Client client = fromModelClient(order.getClient());

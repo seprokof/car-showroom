@@ -1,24 +1,53 @@
-# Compiled class file
+# vi temp files filter
+*~
+
+# Oracle repository files
+.rpd
+
+# Eclipse project files filter
+.settings/
+.project
+.classpath
+
+# jdeveloper project files filter
+.idea/
+*.iml
+
+# Intellij project files filter
+.idea/
+*.iml
+*.iws
+
+# Netbeans
+nbactions.xml
+nb-configuration.xml
+
+# Maven build artefacts filter
+target/
+settings.xml
+
+# jacoco
+*.exec
+
+# Ignore patch and diff files
+*.patch
+*.diff
+*.orig
+
+# Other ignored stuff
 *.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+*.temp
 *.jar
 *.war
-*.nar
+*.pdf
 *.ear
+*.svar
+*.log
+*.tar
 *.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+*.gz
+*.gzip
+*.dump
+*.gitignore
 /.metadata/
+/.recommenders/
