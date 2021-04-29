@@ -13,7 +13,7 @@
   <properties>
     <springfox-version>2.9.2</springfox-version>
     <base.package>com.seprokof.cshr.server</base.package>
-    <openapi-generator-maven-plugin.version>3.3.4</openapi-generator-maven-plugin.version>
+    <openapi-generator-maven-plugin.version>5.1.0</openapi-generator-maven-plugin.version>
   </properties>
 
   <dependencies>
